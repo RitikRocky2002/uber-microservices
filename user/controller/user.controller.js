@@ -69,7 +69,7 @@ module.exports.logout = async (req, res) => {
   try {
     const token = req.cookies.token;
     await blacklisttokenModel.create({ token });
-    res.clearCookie("token"); 
+    res.clearCookie("token");
     res.send({ message: "User logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -83,3 +83,20 @@ module.exports.profile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+module.exports.acceptedRide = async (req, res) => {
+  // Long polling: wait for 'ride-accepted' event
+  rideEventEmitter.once("ride-accepted", (data) => {
+    res.send(data);
+  });
+
+  // Set timeout for long polling (e.g., 30 seconds)
+  setTimeout(() => {
+    res.status(204).send();
+  }, 30000);
+};
+
+subscribeToQueue("ride-accepted", async (msg) => {
+  const data = JSON.parse(msg);
+  rideEventEmitter.emit("ride-accepted", data);
+});

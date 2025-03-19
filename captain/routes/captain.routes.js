@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const captainController = require("../controller/captain.controller");
+const captainController = require("../controllers/captain.controller");
 const authMiddleware = require("../middleware/authMiddleware");
 
 router.post("/register", captainController.register);
@@ -11,6 +11,11 @@ router.patch(
   "/toggle-availability",
   authMiddleware.captainAuth,
   captainController.toggleAvailability
+);
+router.get(
+  "/new-ride",
+  authMiddleware.captainAuth,
+  captainController.waitForNewRide
 );
 
 module.exports = router;
